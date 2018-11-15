@@ -20,7 +20,6 @@ steps:
     mvn clean install -Dmaven.test.skip=true
   displayName: 'mvn'
 
-steps:
 - task: NodeTool@0
   inputs:
     versionSpec: '8.x'
