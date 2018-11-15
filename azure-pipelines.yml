@@ -1,14 +1,33 @@
-# Docker image
-# Build a Docker image to deploy, run, or push to a container registry.
-# Add steps that use Docker Compose, tag images, push to a registry, run an image, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+# Maven
+# Build your Java project and run tests with Apache Maven.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
 
 pool:
   vmImage: 'Ubuntu 16.04'
 
-variables:
-  imageName: 'your-container-image-name:$(build.buildId)'
+steps:
+- task: Maven@3
+  inputs:
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.8'
+    jdkArchitectureOption: 'x64'
+    publishJUnitResults: false
+    goals: 'package'  
+- script: |
+    mvn clean install -Dmaven.test.skip=true
+  displayName: 'mvn'
 
 steps:
-- script: docker build -f Dockerfile -t $(imageName) .
-  displayName: 'docker build'
+- task: NodeTool@0
+  inputs:
+    versionSpec: '8.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    cd heimdall-frontend
+    npm install
+    npm run build
+  displayName: 'npm install and build'
